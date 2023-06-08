@@ -115,6 +115,7 @@ public class loginPage  implements ActionListener {
          addB1.logUser = Username;
          addB1.isAuthenticated = true;
          addB1.role = rs.getString(4);
+         addB1.userId = rs.getString(1);
          JOptionPane.showMessageDialog(null, "You'ved loged in successfuly!");
          frame.dispose();
          new addB1(); 

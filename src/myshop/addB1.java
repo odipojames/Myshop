@@ -67,6 +67,7 @@ JFrame  jm = new JFrame();
 public static boolean isAuthenticated = false;
 public static String logUser = "";
 public static String role = "";
+public static String userId = "";
 
    
      
@@ -96,10 +97,10 @@ public static String role = "";
         //add products panel
         //display products table panel
         Font buttonFont = new Font("Tahoma",Font.BOLD,12);
-        JScrollPane table1Scroller =new JScrollPane();
-        table1 = new JTable();
-        table1.setBounds(268, 52, 600, 200);
         
+        table1 = new JTable();
+        JScrollPane table1Scroller =new JScrollPane(table1);
+        table1Scroller.setBounds(150, 20, 700, 200);
         searchT1 = new JTextField("search by name or id",30);
         searchT1.addMouseListener(new MouseAdapter() {
             @Override
@@ -111,10 +112,11 @@ public static String role = "";
         searchB1 = new JButton("search");
         searchB1.addActionListener((this));
         searchT1.setColumns(15);
-        table1Scroller.setViewportView(table1);
         JPanel allProductsPanel = new JPanel();
         JPanel allProductsPane2 = new JPanel();
+        allProductsPanel.setLayout(null);
         allProductsPanel.add(table1Scroller);
+        
         displayButton1 = new JButton("Show Products");
         displayButton1.setFont(buttonFont);
         displayButton1.addActionListener((this));
@@ -125,11 +127,7 @@ public static String role = "";
         allProductsPane2.add(clearButton1);
         allProductsPane2.add(searchT1);
         allProductsPane2.add(searchB1);
-        //allProductsPane2.setLayout(grid1);
-        //allProductsPanel.setLayout(grid1);
-        allProductsPanel.setBorder(new EmptyBorder(5, 50, 10, 50));
         allProductsPanel.setBackground(Color.lightGray);
-        //allProductsPanel.setBorder(new EmptyBorder(30, 50, 50, 50));
         addProductsPanel.add(pn2,BorderLayout.NORTH);
         addProductsPanel.add(allProductsPanel,BorderLayout.CENTER);
         addProductsPanel.add(allProductsPane2,BorderLayout.SOUTH);
@@ -270,13 +268,9 @@ public static String role = "";
          if(isAuthenticated && role.equalsIgnoreCase("admin")){
           tabs.add("View All Products",allProductViewPanel);   
     }
-     
-         allProductViewPanel.setLayout(new BorderLayout());
+         allProductViewPanel.setLayout(null);
          JPanel allProductViewPanel1  = new JPanel();
-         JPanel allProductViewPanel2  = new JPanel();
-         JPanel allProductViewPanel3  = new JPanel();
-         JPanel centralPanel  = new JPanel();
-         centralPanel.setLayout(new GridLayout(1,2));
+        
    
         DefaultTableModel allProductsTableModel = new DefaultTableModel();
         allProductsTableModel.addColumn("ID");
@@ -284,8 +278,10 @@ public static String role = "";
         allProductsTableModel.addColumn("Unit");
         allProductsTableModel.addColumn("Quantity");
         allProductsTableModel.addColumn("Price");
+        allProductsTableModel.addColumn("Added By");
+        allProductsTableModel.addColumn("Date Added");
         allProductsTable = new JTable(allProductsTableModel);
-        allProductsTable.setBounds(40, 50, 300, 200);
+        allProductsTable.setBounds(10, 50, 400, 200);
         //dissable cell from edditing
         for (int c = 0; c < allProductsTable.getColumnCount(); c++)
         {
@@ -294,16 +290,16 @@ public static String role = "";
         }
 	// Adding Jtable to JScrollPane
 	JScrollPane sp1 = new JScrollPane(allProductsTable);
-        allProductViewPanel1.add(sp1);
-        allProductViewPanel.add(centralPanel,BorderLayout.CENTER);
-        JPanel leftJPanel = new JPanel();
-        leftJPanel.setLayout(new BorderLayout());
-        JPanel tableButtonsJPanel = new JPanel();
-        leftJPanel.add(allProductViewPanel1,BorderLayout.NORTH);
-        
+        sp1.setBounds(10, 40, 700, 300);
+        allProductViewPanel.add(sp1);
         loadAllB = new JButton("show all");
+        loadAllB.setBounds(150, 350, 100, 20);
+        allProductViewPanel.add(loadAllB);
         loadAllB.addActionListener((this));
+        
          srchFld = new JTextField(10);
+         srchFld.setBounds(300, 350, 100, 20);
+         allProductViewPanel.add(srchFld);
          srchFld.setText("name or id");
          srchFld.addMouseListener(new MouseAdapter() {
             @Override
@@ -312,52 +308,62 @@ public static String role = "";
             }
         });
         searchAllB = new JButton("search");
+        searchAllB.setBounds(450, 350, 100, 20);
+         allProductViewPanel.add(searchAllB);
         searchAllB.addActionListener((this));
-        tableButtonsJPanel.add(loadAllB);tableButtonsJPanel.add(srchFld);
-        tableButtonsJPanel.add(searchAllB);
-        leftJPanel.add(tableButtonsJPanel,BorderLayout.CENTER);
-        
-        
-        centralPanel.add( leftJPanel);
-       
         editProductB = new JButton("Edit");
+        editProductB.setBounds(200, 10, 100, 20);
+        allProductViewPanel.add(editProductB);
         editProductB.addActionListener((this));
         saveB = new JButton("Save");
         saveB.addActionListener((this));
         deleteB = new JButton("Delete");
+        deleteB.setBounds(400, 10, 100, 20);
+        allProductViewPanel.add(deleteB);
         deleteB.addActionListener((this));
-        allProductViewPanel2.add(editProductB);  allProductViewPanel2.add(deleteB);
-        allProductViewPanel.add(allProductViewPanel2,BorderLayout.NORTH);
+        
         
         JLabel editNamel = new JLabel("name");
-        editNamel.setPreferredSize(new Dimension(70,100));
+        editNamel.setBounds(60, 20, 100, 20);
+        allProductViewPanel1.add(editNamel);
+        editName = new JTextField();
+        editName.setBounds(10, 40, 220, 20);
+        allProductViewPanel1.add(editName);
+        
         JLabel editUnitl = new JLabel("unit");
-        editUnitl.setPreferredSize(new Dimension(120,100));
-        JLabel editQuantityl = new JLabel("quantity");
-        editQuantityl.setPreferredSize(new Dimension(120,100));
-        JLabel editPricel = new JLabel("price per unit");
-        editPricel.setPreferredSize(new Dimension(120,100));
-        
-        editName = new JTextField(5);
-        //editName.setPreferredSize(new Dimension(10,2));
+        editUnitl.setBounds(60, 80, 100, 20);
+        allProductViewPanel1.add(editUnitl);
         editUnit = new JTextField(10);
-        editQuantity = new JTextField(10);
-        editQuantity.addKeyListener(new JTextFieldKeyListener(editQuantity));
-        editPrice = new JTextField(10);
-        editPrice.addKeyListener(new JTextFieldKeyListener(editPrice));
-        allProductViewPanel3.setLayout(new GridLayout(0,2,0,0));
-        allProductViewPanel3.setBorder( new EmptyBorder(20, 20, 20, 20) );
-        allProductViewPanel3.add(editNamel);allProductViewPanel3.add(editName);
-        allProductViewPanel3.add(editUnitl);allProductViewPanel3.add(editUnit);
-        allProductViewPanel3.add(editQuantityl);allProductViewPanel3.add(editQuantity);
-        allProductViewPanel3.add(editPricel);allProductViewPanel3.add(editPrice);
-        allProductViewPanel3.add(saveB);
-        Border border = new CompoundBorder(
-            new TitledBorder("Edit"), 
-            new EmptyBorder(80, 50, 80, 50));
-        allProductViewPanel3.setBorder(border);
+        editUnit.setBounds(10, 100, 220, 20);
+        allProductViewPanel1.add(editUnit);
         
-        centralPanel.add(allProductViewPanel3);
+        JLabel editQuantityl = new JLabel("quantity");
+        editQuantityl.setBounds(60, 140, 100, 20);
+        allProductViewPanel1.add(editQuantityl);
+        editQuantity = new JTextField(10);
+        editQuantity.setBounds(10, 160, 220, 20);
+        allProductViewPanel1.add(editQuantity);
+        editQuantity.addKeyListener(new JTextFieldKeyListener(editQuantity));
+        
+        JLabel editPricel = new JLabel("price per unit");
+        editPricel.setBounds(60, 200, 100, 20);
+        allProductViewPanel1.add(editPricel);
+        editPrice = new JTextField(10);
+        editPrice.setBounds(10, 220, 220, 20);
+        allProductViewPanel1.add( editPrice);
+        editPrice.addKeyListener(new JTextFieldKeyListener(editPrice));
+        saveB.setBounds(10, 280, 220, 20);
+        allProductViewPanel1.add(saveB);
+        
+        allProductViewPanel1.setLayout(null);
+        allProductViewPanel1.setBounds(720, 30, 260, 380);
+        Border blackline4 = BorderFactory.createTitledBorder("Edit Product");
+        allProductViewPanel1.setBorder(blackline4);
+        allProductViewPanel.add(allProductViewPanel1);
+        
+        
+        
+      
         
         
         //restock winow
@@ -630,21 +636,8 @@ public static String role = "";
         }
         
          
-         
-         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-     
           
         jm.add(tabs);
         jm.setTitle("SHOP MANAGER");
@@ -727,6 +720,7 @@ public static String role = "";
           try {
               Connection conn=getConnection();
               Statement st = conn.createStatement();
+              Statement st2 = conn.createStatement();
               String query = "SELECT * from products ORDER BY date DESC ";
               ResultSet rs =  st.executeQuery(query);
               ResultSetMetaData rsmd = rs.getMetaData();
@@ -735,29 +729,27 @@ public static String role = "";
               
               
               //get column count
-              int cols = rsmd.getColumnCount();
+              int cols = 5;//number of table cols
               
               String[] colName =new String[cols];
               //get col names from db
               for(int i=0;i<cols;i++)
                   colName[i]= rsmd.getColumnName(i+1);
               model.setColumnIdentifiers(colName);
-              
               //reading rows from db
-              String name,id,unit,quantity,price,date;
+              String name,id,unit,quantity,price;
               while(rs.next()){
               name=rs.getString(1);
               id=rs.getString(2);
               unit = rs.getString(3);
               quantity =rs.getString(4);
               price = rs.getString(5);
-              date = rs.getString(6);
-              
-              String[] row = {name,id,unit,quantity,price,date};
+              String[] row = {name,id,unit,quantity,price};
               model.addRow(row);
               
               }
               st.close();
+              st2.close();
               conn.close();
               
              
@@ -805,7 +797,7 @@ public static String role = "";
               
               
               //get column count
-              int cols = rsmd.getColumnCount();
+              int cols = 5;
               
               String[] colName =new String[cols];
               //get col names from db
@@ -814,16 +806,14 @@ public static String role = "";
               model.setColumnIdentifiers(colName);
               
               //reading rows from db
-              String name,id,unit,quantity,price,date;
+              String name,id,unit,quantity,price;
               while(rs.next()){
               name=rs.getString(1);
               id=rs.getString(2);
               unit = rs.getString(3);
               quantity =rs.getString(4);
               price = rs.getString(5);
-              date = rs.getString(6);
-              
-              String[] row = {name,id,unit,quantity,price,date};
+              String[] row = {name,id,unit,quantity,price};
               model.addRow(row);
               
               }
@@ -1031,7 +1021,7 @@ public static String role = "";
          sumTexFld1.setText(Integer.toString(restockCatSum()));
        
       }
-      catch(Exception e){
+      catch(SQLException e){
           System.out.print(e.getMessage());
       }
        
@@ -1039,28 +1029,39 @@ public static String role = "";
         
     } 
     
+   
     
     
 
 //All Products Table Show/Crud products
- public void allProductsTableShow(){
+ public  void allProductsTableShow(){
          //clears table if any
         DefaultTableModel dm = (DefaultTableModel) allProductsTable.getModel();
         dm.setRowCount(0);
         try{
         Connection conn = getConnection();
         Statement st = conn.createStatement();
+        Statement st2 = conn.createStatement();
         String sql = "SELECT * FROM products";
         ResultSet rs =  st.executeQuery(sql);
         DefaultTableModel model = (DefaultTableModel) allProductsTable.getModel();
-        String id,name,unit,quantity,price;
+        String id,name,unit,quantity,price,added_by,date;
         while(rs.next()){
                id=rs.getString(2);
                name=rs.getString(1);
                unit = rs.getString(3);
                quantity =  rs.getString(4);
                price = rs.getString(5);
-               String[] row = {id,name,unit,quantity,price};
+               //find username of user foriegn key
+               ResultSet rs2 = st2.executeQuery("SELECT * FROM users WHERE id='"+rs.getString(6)+"' ");
+              if(rs2.next()){
+              added_by = rs2.getString(2);
+              }
+              else{
+              added_by = rs.getString(6);
+              }
+               date = rs.getString(7);
+               String[] row = {id,name,unit,quantity,price,added_by,date};
                model.addRow(row);     
         }
          st.close();
@@ -1076,6 +1077,76 @@ public static String role = "";
        
         
     } 
+ 
+ 
+ 
+//search on crud products table
+public void serchedCrudProductstable(){
+                
+                if(srchFld.getText().equals("") || srchFld.getText().equalsIgnoreCase("name or id")){
+                JOptionPane.showMessageDialog(this, "you must enter name or id of product!","Error!", JOptionPane.ERROR_MESSAGE);
+                }
+                
+     
+                else{
+                
+                try {
+                     //clears table if any
+                DefaultTableModel dm = (DefaultTableModel) allProductsTable.getModel();
+                dm.setRowCount(0);
+              
+              Connection conn = getConnection();
+              Statement st = conn.createStatement();
+              Statement st2 = conn.createStatement();
+              String query = "";
+              String searchItem = srchFld.getText();
+              if(searchItem.matches("\\d+")){//check if its an id input
+              query = "SELECT * FROM products WHERE id = '"+searchItem + "'";
+              }
+              if(!searchItem.matches("\\d+")){
+              query = "SELECT * FROM products WHERE name LIKE '%' '"+ searchItem +"' '%'";
+              }
+              ResultSet rs =  st.executeQuery(query);
+              if(rs.isBeforeFirst()){
+              DefaultTableModel model = (DefaultTableModel) allProductsTable.getModel();
+              String id,name,unit,quantity,price,added_by,date;
+              while(rs.next()){
+              name=rs.getString(1);
+              id=rs.getString(2);
+              unit = rs.getString(3);
+              quantity =rs.getString(4);
+              price = rs.getString(5);
+              ResultSet rs2 = st2.executeQuery("SELECT * FROM users WHERE id='"+rs.getString(6)+"' ");
+              if(rs2.next()){
+              added_by = rs2.getString(2);
+              }
+              else{
+              added_by = rs.getString(6);
+              }
+              date = rs.getString(7);
+              String[] row = {id,name,unit,quantity,price,added_by,date};
+              model.addRow(row);
+              
+              }
+              st.close();
+              conn.close();
+              }
+              else{
+              JOptionPane.showMessageDialog(this, "search item not found!");
+              }
+              
+             
+              System.out.println("DB connected!");
+          } 
+          catch (SQLException ex) {
+               System.out.println(ex.getMessage());
+               System.out.println("mySQL error");
+              Logger.getLogger(addB1.class.getName()).log(Level.SEVERE, null, ex);
+          }
+                    
+                }
+     
+    }
         
     
     
@@ -1094,12 +1165,13 @@ public void sellProduct(){
     try{
       Connection conn = getConnection();
       for(int i =0;i<model.getRowCount();i++){
-          PreparedStatement insert = conn.prepareStatement("insert into sold_products (id,name,unit,quantity,total_ksh)values(?,?,?,?,?)");
+          PreparedStatement insert = conn.prepareStatement("insert into sold_products (id,name,unit,quantity,total_ksh,sold_by)values(?,?,?,?,?,?)");
           insert.setInt(1,0);//auto gen in db
           insert.setString(2,model.getValueAt(i, 1).toString());
           insert.setString(3,model.getValueAt(i, 2).toString());
           insert.setInt(4,Integer.parseInt(model.getValueAt(i, 3).toString()));
           insert.setFloat(5,Float.parseFloat(model.getValueAt(i,4).toString()));
+          insert.setInt(6, Integer.parseInt(userId));
           insert.executeUpdate();
           //seardch for product being sold
           Statement st = conn.createStatement();
@@ -1148,12 +1220,13 @@ public void restockProducts(){
     try{
       Connection conn = getConnection();
       for(int i =0;i<model.getRowCount();i++){
-          PreparedStatement insert = conn.prepareStatement("insert into restocked_products (id,name,unit,quantity,price)values(?,?,?,?,?)");
+          PreparedStatement insert = conn.prepareStatement("insert into restocked_products (id,name,unit,quantity,price,restocked_by)values(?,?,?,?,?,?)");
           insert.setInt(1,0);//auto gen in db
           insert.setString(2,model.getValueAt(i, 1).toString());
           insert.setString(3,model.getValueAt(i, 2).toString());
           insert.setInt(4,Integer.parseInt(model.getValueAt(i, 3).toString()));
           insert.setFloat(5,Float.parseFloat(model.getValueAt(i,4).toString()));
+          insert.setInt(6,Integer.parseInt(userId));
           insert.executeUpdate();
           //seardch for product being sold
           Statement st = conn.createStatement();
@@ -1193,64 +1266,6 @@ public void restockProducts(){
 
 
 
-//search on crud products table
-public void serchedCrudProductstable(){
-                
-                if(srchFld.getText().equals("") || srchFld.getText().equalsIgnoreCase("name or id")){
-                JOptionPane.showMessageDialog(this, "you must enter name or id of product!","Error!", JOptionPane.ERROR_MESSAGE);
-                }
-                
-     
-                else{
-                
-                try {
-                     //clears table if any
-                DefaultTableModel dm = (DefaultTableModel) allProductsTable.getModel();
-                dm.setRowCount(0);
-              
-              Connection conn = getConnection();
-              Statement st = conn.createStatement();
-              String query = "";
-              String searchItem = srchFld.getText();
-              if(searchItem.matches("\\d+")){//check if its an id input
-              query = "SELECT * FROM products WHERE id = '"+searchItem + "'";
-              }
-              if(!searchItem.matches("\\d+")){
-              query = "SELECT * FROM products WHERE name LIKE '%' '"+ searchItem +"' '%'";
-              }
-              ResultSet rs =  st.executeQuery(query);
-              if(rs.isBeforeFirst()){
-              DefaultTableModel model = (DefaultTableModel) allProductsTable.getModel();
-              String id,name,unit,quantity,price;
-              while(rs.next()){
-              name=rs.getString(1);
-              id=rs.getString(2);
-              unit = rs.getString(3);
-              quantity =rs.getString(4);
-              price = rs.getString(5);
-              String[] row = {id,name,unit,quantity,price};
-              model.addRow(row);
-              
-              }
-              st.close();
-              conn.close();
-              }
-              else{
-              JOptionPane.showMessageDialog(this, "search item not found!");
-              }
-              
-             
-              System.out.println("DB connected!");
-          } 
-          catch (SQLException ex) {
-               System.out.println(ex.getMessage());
-               System.out.println("mySQL error");
-              Logger.getLogger(addB1.class.getName()).log(Level.SEVERE, null, ex);
-          }
-                    
-                }
-     
-    }
 
 
 //method to search user already exists
@@ -1457,12 +1472,13 @@ public void serchedCrudProductstable(){
           try {  
          Connection conn =  getConnection();
          statement = conn.createStatement();
-         PreparedStatement insert = conn.prepareStatement("insert into products (name,id,unit,quantity,price)values(?,?,?,?,?)");
+         PreparedStatement insert = conn.prepareStatement("insert into products (name,id,unit,quantity,price,added_by)values(?,?,?,?,?,?)");
           insert.setString(1,name);
           insert.setInt(2,0);//auto gen in db
           insert.setString(3,unit);
           insert.setInt(4,quantity);
           insert.setFloat(5,price);
+          insert.setInt(6,Integer.parseInt(userId));
           insert.executeUpdate();
           JOptionPane.showMessageDialog(this, "Product Successfuly Added");
           
@@ -1631,14 +1647,23 @@ public void serchedCrudProductstable(){
      
     }
     
+  
     
     
     
     public static void main(String[] args) {
       
-       
        if(isAuthenticated){
+         
         new addB1();
+          //functions to call when window opens
+        addB1 b1 = new addB1();
+        b1.displayAllProductstable();
+        b1.usersTableShow();
+        b1.allProductsTableShow();//not working as excpected!
+       
+       
+ 
        }
        else{
            new loginPage();
