@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*; 
 import java.sql.*;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.border.Border;
@@ -16,12 +17,20 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.jdatepicker.*;
+import org.jdatepicker.impl.*;
+import java.text.*;
+import java.time.LocalDate;
+
+
 
 
 /**
  *
  * @author odipojames12
  */
+
+
 
 public class addB1 extends JFrame  implements ActionListener  {
 
@@ -39,7 +48,7 @@ JTable table1;
 JButton clearButton1;
 JTextField searchT1;
 JButton searchB1;
-JComboBox c1,c2,roleC;
+JComboBox c1,c2,roleC,c3;
 JTable catTable;
 JTextField sumTexFld;
 JButton addB1;
@@ -58,16 +67,21 @@ JTextField editQuantity;
 JTextField editPrice;
 JButton saveB;
 JButton deleteB;
-JTable restockTable,usersTable ;
+JTable restockTable,usersTable,salesTable ;
 JButton restockB1;
-JButton addB2,createUserB,editUserB;
+JButton addB2,createUserB,editUserB,processB;
 JTextField sumTexFld1,q2,p1,userName,editUserName,editUserRole,editUserPassword;
 JPasswordField passwordP;
+JCheckBox dateCheckBox;
+
+
 JFrame  jm = new JFrame();
+JDatePickerImpl todatePicker,fromdatePicker;
 public static boolean isAuthenticated = false;
 public static String logUser = "";
 public static String role = "";
 public static String userId = "";
+
 
    
      
@@ -80,6 +94,7 @@ public static String userId = "";
         JPanel pn2 = new JPanel();
         JPanel restockPanel = new JPanel();
         JPanel addProductsPanel = new JPanel(new BorderLayout());
+        JPanel salesReportPanel =  new JPanel();
         JTabbedPane tabs = new JTabbedPane();
         
         allProductViewPanel.setSize(1000, 500);
@@ -635,6 +650,128 @@ public static String userId = "";
             tabs.add("User Manager ",userPanel);
         }
         
+        
+        //sales report
+        if(isAuthenticated && role.equalsIgnoreCase("admin")){
+          tabs.add("View Sales Report",salesReportPanel);   
+    }   salesReportPanel.setLayout(null);
+         
+    
+        JPanel salesTablePanel =  new JPanel();
+        salesTablePanel.setFont(new Font("Serif", Font.PLAIN, 15));
+        salesTablePanel.setLayout(null);
+        salesTablePanel.setBackground(Color.white);
+        salesTablePanel.setBounds(30, 30, 900, 600);
+        salesReportPanel.add(salesTablePanel);
+        JLabel salesL = new JLabel("SALES");
+        salesL.setBounds(30, 20, 100, 20);
+        salesTablePanel.add(salesL);
+        salesL.setForeground(Color.green);
+        salesL.setFont(new Font("Serif", Font.PLAIN, 20));
+        
+        processB = new JButton("Process");
+        processB.setBounds(400, 20, 100, 20);
+        salesTablePanel.add(processB);
+        processB.setBackground(Color.BLUE);
+        processB.setForeground(Color.white);
+        processB.addActionListener((this));
+        
+        JButton printB = new JButton("Print");
+        printB.setBounds(550, 20, 100, 20);
+        salesTablePanel.add(printB);
+        printB.setBackground(Color.BLUE);
+        printB.setForeground(Color.white);
+        
+        JButton clearB = new JButton("Clear");
+        clearB.setBounds(700, 20, 100, 20);
+        salesTablePanel.add(clearB);
+        clearB.setBackground(Color.BLUE);
+        clearB.setForeground(Color.white);
+        
+        JLabel fromLabel = new JLabel("From:");
+        fromLabel.setBounds(30, 50, 100, 20);
+        salesTablePanel.add(fromLabel);
+        fromLabel.setForeground(Color.green);
+        fromLabel.setFont(new Font("Serif", Font.PLAIN, 16));
+        
+        //date picker properties
+        Properties p = new Properties();
+        p.put("text.year", "Year");
+        p.put("text.month", "Month");
+        p.put("text.today", "Today");
+        //getting current date
+        LocalDate Ldate = LocalDate.now();
+        
+       UtilDateModel fromdatemodel = new UtilDateModel();
+       fromdatemodel.setDate(Ldate.getYear(), Ldate.getMonthValue()-1, Ldate.getDayOfMonth());
+       fromdatemodel.setSelected(true);
+       JDatePanelImpl datePanel1 = new JDatePanelImpl(fromdatemodel,p);
+       fromdatePicker = new JDatePickerImpl(datePanel1, new DateLabelFormatter());
+       fromdatePicker.setBounds(30, 70, 150, 20);
+       salesTablePanel.add(fromdatePicker);
+        
+        
+        
+        JLabel toLabel = new JLabel("To:");
+        toLabel.setBounds(210, 50, 100, 20);
+        salesTablePanel.add(toLabel);
+        toLabel.setForeground(Color.green);
+        toLabel.setFont(new Font("Serif", Font.PLAIN, 16));
+        
+        UtilDateModel todatemodel = new UtilDateModel();
+        todatemodel.setDate(Ldate.getYear(), Ldate.getMonthValue()-1, Ldate.getDayOfMonth());
+        todatemodel.setSelected(true);
+        JDatePanelImpl datePanel = new JDatePanelImpl(todatemodel,p);
+        todatePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        todatePicker.setBounds(200, 70, 150, 20);
+        salesTablePanel.add(todatePicker);
+        
+        
+        dateCheckBox = new JCheckBox("All Dates", false);  
+        dateCheckBox.setBounds(380, 70, 100, 20);
+        dateCheckBox.setForeground(Color.green);
+        dateCheckBox.setFont(new Font("Serif", Font.PLAIN, 16));
+        salesTablePanel.add(dateCheckBox);
+        
+        JLabel productsLabel = new JLabel("product");
+        productsLabel.setBounds(500, 50, 100, 20);
+        salesTablePanel.add(productsLabel);
+        productsLabel.setForeground(Color.green);
+        productsLabel.setFont(new Font("Serif", Font.PLAIN, 16));
+        
+        c3 = new JComboBox();
+        c3.addItem("ALL");
+        c3.setBounds(500, 70, 300, 20);
+        salesTablePanel.add(c3);
+        c3.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                filComb3();
+            }
+        });
+        
+        //sales table
+        DefaultTableModel salesTablemodel = new DefaultTableModel();
+        salesTablemodel.addColumn("ID");
+        salesTablemodel.addColumn("NAME");
+        salesTablemodel.addColumn("UNIT");
+        salesTablemodel.addColumn("QUANTITY");
+        salesTablemodel.addColumn("TOTAL KSH.");
+        salesTablemodel.addColumn("SOLD BY");
+        salesTablemodel.addColumn("DATE");
+        salesTable = new JTable(salesTablemodel);
+        //dissable cell from edditing
+        for (int c = 0; c < salesTable .getColumnCount(); c++)
+        {
+            Class<?> col_class = salesTable.getColumnClass(c);
+            salesTable.setDefaultEditor(col_class, null);        // remove editor
+        }
+        JScrollPane sp5 = new JScrollPane(salesTable);
+        sp5.setBounds(30, 100, 800, 400);
+        salesTablePanel.add(sp5);
+        
+        
+        
          
         
         
@@ -908,7 +1045,32 @@ public static String userId = "";
           System.out.print(e.getMessage());
       }
      
-    }     
+    }    
+        
+         
+   //select sold products 
+        public void  filComb3(){
+     
+      
+      try{
+        Connection conn = getConnection();
+        Statement st = conn.createStatement();
+        String sql = "SELECT name FROM sold_products";
+        ResultSet rs =  st.executeQuery(sql);
+        
+        while(rs.next()){
+            c3.addItem(rs.getString("name"));
+        }
+        
+        st.close();
+        conn.close();
+       
+      }
+      catch(Exception e){
+          System.out.print(e.getMessage());
+      }
+     
+    }         
         
         //adding product to cat table
     public void addToCat(){
@@ -1436,6 +1598,70 @@ public void restockProducts(){
  
  }
  
+ 
+ //sales table report
+ public void salesTableReport(){
+         //clears table if any
+        DefaultTableModel dm = (DefaultTableModel) salesTable.getModel();
+        dm.setRowCount(0);
+        //date variables
+        String from = fromdatePicker.getJFormattedTextField().getText();
+        String to  = todatePicker.getJFormattedTextField().getText();
+        String product = c3.getSelectedItem().toString();
+        try{
+        Connection conn = getConnection();
+        Statement st = conn.createStatement();
+        Statement st2 = conn.createStatement();
+        String sql = "SELECT * FROM sold_products WHERE date >= '"+from+"' AND date <='"+to+"'";
+        if(!dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL")){
+        sql = "SELECT * FROM sold_products WHERE date BETWEEN '"+from+"' AND '"+to+"' ";
+        }
+        
+        if(!dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL")){
+        sql = "SELECT * FROM sold_products WHERE name ='"+product+"' AND date BETWEEN '"+from+"' AND '"+to+"' ";
+        }
+        
+        if(dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL")){
+         sql = "SELECT * FROM sold_products ";//show all sales for all products
+        }
+        if(dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL")){
+         sql = "SELECT * FROM sold_products WHERE name = '"+product+"' ";//show all sales for a specific product
+        }
+        
+        ResultSet rs =  st.executeQuery(sql);
+        DefaultTableModel model = (DefaultTableModel) salesTable.getModel();
+        String id,name,unit,quantity,total_ksh,sold_by,date;
+        while(rs.next()){
+               id=rs.getString(1);
+               name=rs.getString(2);
+               unit = rs.getString(3);
+               quantity = rs.getString(4);
+               total_ksh = rs.getString(5);
+               //find username of user foriegn key
+               ResultSet rs2 = st2.executeQuery("SELECT * FROM users WHERE id='"+rs.getString(6)+"' ");
+              if(rs2.next()){
+              sold_by = rs2.getString(2);
+              }
+              else{
+              sold_by = rs.getString(6);
+              }
+               date = rs.getString(7);
+               String[] row = {id,name,unit,quantity,total_ksh,sold_by,date};
+               model.addRow(row);     
+        }
+         st.close();
+         conn.close();
+        
+        
+       
+      }
+      catch(SQLException e){
+          System.out.print(e.getMessage());
+      }
+       
+       
+        
+    } 
     
     
 
@@ -1643,6 +1869,9 @@ public void restockProducts(){
      
      }
      
+     if(e.getSource()==processB){
+        salesTableReport();
+     }
      
      
     }
@@ -1656,14 +1885,7 @@ public void restockProducts(){
        if(isAuthenticated){
          
         new addB1();
-          //functions to call when window opens
-        addB1 b1 = new addB1();
-        b1.displayAllProductstable();
-        b1.usersTableShow();
-        b1.allProductsTableShow();//not working as excpected!
        
-       
- 
        }
        else{
            new loginPage();

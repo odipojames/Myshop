@@ -112,13 +112,20 @@ public class loginPage  implements ActionListener {
         String sql = "SELECT * FROM users WHERE username = '"+Username + "' AND  password = '"+Password1+"' ";
         ResultSet rs =  st.executeQuery(sql);
         if(rs.next()){
+         JOptionPane.showMessageDialog(null, "You'ved loged in successfuly!");
+         frame.dispose();
          addB1.logUser = Username;
          addB1.isAuthenticated = true;
          addB1.role = rs.getString(4);
          addB1.userId = rs.getString(1);
-         JOptionPane.showMessageDialog(null, "You'ved loged in successfuly!");
-         frame.dispose();
-         new addB1(); 
+        addB1 b1 = new addB1();
+        //loading data to window
+        b1.displayAllProductstable();
+        b1.usersTableShow();
+        b1.allProductsTableShow();
+       
+         
+         //new addB1(); 
         }
         else{
         JOptionPane.showMessageDialog(null, "password and username do not match!","Error!", JOptionPane.ERROR_MESSAGE);
