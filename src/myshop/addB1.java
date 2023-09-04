@@ -1345,8 +1345,9 @@ public void sellProduct(){
     else{
     try{
       Connection conn = getConnection();
-      for(int i =0;i<model.getRowCount();i++){
-          PreparedStatement insert = conn.prepareStatement("insert into sold_products (id,name,unit,quantity,total_ksh,sold_by)values(?,?,?,?,?,?)");
+      System.out.println(catTable.getRowCount());
+      PreparedStatement insert = conn.prepareStatement("insert into sold_products (id,name,unit,quantity,total_ksh,sold_by)values(?,?,?,?,?,?)");
+      for(int i =0;i<catTable.getRowCount();i++){
           insert.setInt(1,0);//auto gen in db
           insert.setString(2,model.getValueAt(i, 1).toString());
           insert.setString(3,model.getValueAt(i, 2).toString());
@@ -1365,12 +1366,16 @@ public void sellProduct(){
           String sql1 = "UPDATE products set quantity='"+q1+"' WHERE id ='"+model.getValueAt(i, 0).toString()+"' ";
            st.executeUpdate(sql1);
           }
-          JOptionPane.showMessageDialog(this, "transaction succesful!");
-          model.setRowCount(0);
-          displayAllProductstable();
-        st.close();
+           st.close();
+      
+        
       }
-      conn.close();
+      JOptionPane.showMessageDialog(this, "transaction succesful!");
+        conn.close();
+        model.setRowCount(0);
+        displayAllProductstable();
+        allProductsTableShow();
+      
     }
   
       catch(SQLException e){
@@ -1400,8 +1405,8 @@ public void restockProducts(){
     else{
     try{
       Connection conn = getConnection();
+       PreparedStatement insert = conn.prepareStatement("insert into restocked_products (id,name,unit,quantity,price,restocked_by)values(?,?,?,?,?,?)");
       for(int i =0;i<model.getRowCount();i++){
-          PreparedStatement insert = conn.prepareStatement("insert into restocked_products (id,name,unit,quantity,price,restocked_by)values(?,?,?,?,?,?)");
           insert.setInt(1,0);//auto gen in db
           insert.setString(2,model.getValueAt(i, 1).toString());
           insert.setString(3,model.getValueAt(i, 2).toString());
@@ -1422,11 +1427,13 @@ public void restockProducts(){
           String sql1 = "UPDATE products set quantity='"+q1+"', price='"+pr+"' WHERE id ='"+model.getValueAt(i, 0).toString()+"' ";
            st.executeUpdate(sql1);
           }
-          JOptionPane.showMessageDialog(this, "transaction succesful!");
-          model.setRowCount(0);
-          displayAllProductstable();
+          
         st.close();
       }
+      JOptionPane.showMessageDialog(this, "transaction succesful!");
+        model.setRowCount(0);
+        displayAllProductstable();
+        allProductsTableShow();
       conn.close();
     }
   
