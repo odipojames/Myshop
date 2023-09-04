@@ -817,7 +817,7 @@ public static String userId = "";
      Connection conn = null;
      
      try{
-     conn= DriverManager.getConnection("jdbc:mysql://localhost/products","root","");
+     conn= DriverManager.getConnection("jdbc:mysql://localhost/shop","root","");
      
      }
      catch(SQLException e){
@@ -1074,7 +1074,9 @@ public static String userId = "";
         
         //adding product to cat table
     public void addToCat(){
-        
+       DefaultTableModel model = (DefaultTableModel) catTable.getModel();
+       String name,id,unit,quantity,total;
+       
        if(c1.getSelectedItem().toString().equalsIgnoreCase("Select Product")){
           JOptionPane.showMessageDialog(null, "select product","Error!", JOptionPane.ERROR_MESSAGE);
           c1.requestFocus();
@@ -1093,30 +1095,47 @@ public static String userId = "";
         String select = c1.getSelectedItem().toString();
         String sql = "SELECT * FROM products WHERE name = '"+select+ "'";
         ResultSet rs =  st.executeQuery(sql);
-        DefaultTableModel model = (DefaultTableModel) catTable.getModel();
-        String name,id,unit,quantity,total;
+       
+         int q2 =0 ;    
+       
+        
         
          
         
         while(rs.next()){
-             if(Integer.parseInt(rs.getString(4))>= Integer.parseInt(q1.getText())){
+             if(catTable.getRowCount()>0){
+        String id_k = rs.getString(2);
+        
+        for(int i= 0; i<catTable.getRowCount();i++){
+           if(catTable.getValueAt(i, 0).equals(id_k)){
+             q2 = q2 + Integer.parseInt(catTable.getValueAt(i,3).toString());
+           }
+        }
+           
+         }
+            if(Integer.parseInt(rs.getString(4))< q2+Integer.parseInt(q1.getText())){
+               
+       
+             JOptionPane.showMessageDialog(null,"few of this product remaining in stok \n please check quantity remaining" );
+        }
+             
+            else if(Integer.parseInt(rs.getString(4))>= q2){
                id=rs.getString(2);
                name=rs.getString(1);
                unit = rs.getString(3);
                quantity =  q1.getText();
-               total = Integer.toString(Integer.parseInt(rs.getString(5))*Integer.parseInt(q1.getText()));
-          
+               total = Integer.toString((int) (rs.getFloat(5)*Integer.parseInt(q1.getText())));
+               
               String[] row = {id,name,unit,quantity,total};
               model.addRow(row);
               
              }
              
-           if(Integer.parseInt(rs.getString(4))< Integer.parseInt(q1.getText())){
        
-            JOptionPane.showMessageDialog(null,"few of this product remaining in stok \n please check quantity remaining" );
-        }
+           
              
             
+        
             
         }
          st.close();
