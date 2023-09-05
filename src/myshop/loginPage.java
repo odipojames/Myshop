@@ -1,17 +1,11 @@
 package myshop;
-import com.sun.jdi.connect.spi.Connection;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
 import javax.swing.border.Border;
-import javax.swing.event.*;
 import java.sql.*;
 import static myshop.addB1.getConnection;
 
@@ -19,11 +13,11 @@ import static myshop.addB1.getConnection;
 
 
 public class loginPage  implements ActionListener {
-   private JLabel password1, label;
-   private JTextField username;
-   private JButton button;
-   private JPasswordField Password;
-   private JFrame frame;
+       JLabel password1, label;
+       JTextField username;
+       JButton button;
+       JPasswordField Password;
+       JFrame frame;
 
     loginPage(){
         JDialog.setDefaultLookAndFeelDecorated(true);
@@ -76,6 +70,7 @@ public class loginPage  implements ActionListener {
         button.addActionListener((this));
         panel.add(button);
         frame.setVisible(true);
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("store-icon.jpg")));
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override

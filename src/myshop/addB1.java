@@ -2,25 +2,22 @@ package myshop;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*; 
+import java.awt.Font;
+import java.awt.Color;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-
-import org.jdatepicker.*;
 import org.jdatepicker.impl.*;
-import java.text.*;
 import java.time.LocalDate;
+import java.awt.print.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 
@@ -36,7 +33,6 @@ public class addB1 extends JFrame  implements ActionListener  {
 
 Statement statement;
 JButton addProdButton;
-JButton updateProductButon;
       
 JTextField productName;
 JTextField productId;
@@ -48,7 +44,7 @@ JTable table1;
 JButton clearButton1;
 JTextField searchT1;
 JButton searchB1;
-JComboBox c1,c2,roleC,c3;
+JComboBox c1,c2,roleC,c3,c4;
 JTable catTable;
 JTextField sumTexFld;
 JButton addB1;
@@ -83,8 +79,11 @@ public static String role = "";
 public static String userId = "";
 
 
-   
-     
+String username = System.getProperty("user.name");  
+String downloadsPath = "C:\\Users\\" + username + "\\Downloads";
+
+String fileName = "sales_report.xlsx"; // Replace with your desired file name
+String filePathInDownloads = downloadsPath + "\\" + fileName;
     
          
     addB1(){
@@ -101,7 +100,7 @@ public static String userId = "";
         //pn2.setSize(1000, 500);
         restockPanel.setSize(1000, 500);
         tabs.setBounds(100, 100, 300, 300);
-        tabs.add("Add New  Products",addProductsPanel);
+       
         
        
         //layouts
@@ -179,6 +178,7 @@ public static String userId = "";
         sellProductPanel.setSize(1000, 500);
         sellProductPanel1.setBorder(new EmptyBorder(20, 50, 50, 50));
         tabs.add("Sell Product",sellProductPanel);
+        tabs.add("Add New  Products",addProductsPanel);
         sellProductPanel.setLayout(new BorderLayout());
         sellProductPanel.add(sellProductPanel1,BorderLayout.NORTH);
         c1 = new JComboBox();
@@ -280,9 +280,9 @@ public static String userId = "";
         
       
         //view all products window
-         if(isAuthenticated && role.equalsIgnoreCase("admin")){
-          tabs.add("View All Products",allProductViewPanel);   
-    }
+         
+         tabs.add("View All Products",allProductViewPanel);   
+    
          allProductViewPanel.setLayout(null);
          JPanel allProductViewPanel1  = new JPanel();
         
@@ -328,13 +328,19 @@ public static String userId = "";
         searchAllB.addActionListener((this));
         editProductB = new JButton("Edit");
         editProductB.setBounds(200, 10, 100, 20);
-        allProductViewPanel.add(editProductB);
+        if(isAuthenticated && role.equalsIgnoreCase("admin")){
+            allProductViewPanel.add(editProductB);
+    }
+      
         editProductB.addActionListener((this));
         saveB = new JButton("Save");
         saveB.addActionListener((this));
         deleteB = new JButton("Delete");
         deleteB.setBounds(400, 10, 100, 20);
-        allProductViewPanel.add(deleteB);
+         if(isAuthenticated && role.equalsIgnoreCase("admin")){
+           allProductViewPanel.add(deleteB);   
+    }
+       
         deleteB.addActionListener((this));
         
         
@@ -368,7 +374,10 @@ public static String userId = "";
         allProductViewPanel1.add( editPrice);
         editPrice.addKeyListener(new JTextFieldKeyListener(editPrice));
         saveB.setBounds(10, 280, 220, 20);
-        allProductViewPanel1.add(saveB);
+        if(isAuthenticated && role.equalsIgnoreCase("admin")){
+           allProductViewPanel1.add(saveB);
+    }
+        
         
         allProductViewPanel1.setLayout(null);
         allProductViewPanel1.setBounds(720, 30, 260, 380);
@@ -652,9 +661,9 @@ public static String userId = "";
         
         
         //sales report
-        if(isAuthenticated && role.equalsIgnoreCase("admin")){
-          tabs.add("View Sales Report",salesReportPanel);   
-    }   salesReportPanel.setLayout(null);
+      
+         tabs.add("View Sales Report",salesReportPanel);   
+         salesReportPanel.setLayout(null);
          
     
         JPanel salesTablePanel =  new JPanel();
@@ -678,12 +687,22 @@ public static String userId = "";
         
         JButton printB = new JButton("Print");
         printB.setBounds(550, 20, 100, 20);
+        printB.addActionListener(e -> printTable(salesTable));
         salesTablePanel.add(printB);
         printB.setBackground(Color.BLUE);
         printB.setForeground(Color.white);
         
-        JButton clearB = new JButton("Clear");
+        JButton clearB = new JButton("Export Exl");
         clearB.setBounds(700, 20, 100, 20);
+        clearB.addActionListener(e -> {
+                try {
+                    exportTableToExcel(salesTable, filePathInDownloads);
+                    JOptionPane.showMessageDialog(jm, "Table exported to Excel successfully.\n chek in downloads");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(jm, "Error exporting table to Excel: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
         salesTablePanel.add(clearB);
         clearB.setBackground(Color.BLUE);
         clearB.setForeground(Color.white);
@@ -741,14 +760,33 @@ public static String userId = "";
         
         c3 = new JComboBox();
         c3.addItem("ALL");
-        c3.setBounds(500, 70, 300, 20);
+        c3.setBounds(500, 70, 200, 20);
         salesTablePanel.add(c3);
         c3.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 filComb3();
             }
         });
+        
+        JLabel sellerLabel = new JLabel("Seller");
+        sellerLabel.setBounds(722, 50, 100, 20);
+        salesTablePanel.add(sellerLabel);
+        sellerLabel.setForeground(Color.green);
+        sellerLabel.setFont(new Font("Serif", Font.PLAIN, 16));
+        
+        c4 = new JComboBox();
+        c4.addItem("ALL");
+        c4.setBounds(722, 70, 100, 20);
+        salesTablePanel.add(c4);
+        c4.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                filComb4();
+            }
+        });
+        
+        
         
         //sales table
         DefaultTableModel salesTablemodel = new DefaultTableModel();
@@ -780,7 +818,8 @@ public static String userId = "";
         jm.setTitle("SHOP MANAGER");
         jm.setSize(1000, 600);
         jm.setLocationRelativeTo(null);
-        //jm.pack();
+        //add icon;
+        jm.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("store-icon.jpg")));
         jm.setVisible(true);
         jm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         jm.addWindowListener(new WindowAdapter() {
@@ -1000,7 +1039,9 @@ public static String userId = "";
     
     //select products 
         public void  filComb(){
-     
+         //clear selectbox
+         c1.removeAllItems();
+         
       
       try{
         Connection conn = getConnection();
@@ -1025,7 +1066,7 @@ public static String userId = "";
         
    //select products 
         public void  filComb2(){
-     
+        c2.removeAllItems();
       
       try{
         Connection conn = getConnection();
@@ -1050,12 +1091,13 @@ public static String userId = "";
          
    //select sold products 
         public void  filComb3(){
-     
+        c3.removeAllItems();
+        
       
       try{
         Connection conn = getConnection();
         Statement st = conn.createStatement();
-        String sql = "SELECT name FROM sold_products";
+        String sql = "SELECT DISTINCT  name FROM sold_products";
         ResultSet rs =  st.executeQuery(sql);
         
         while(rs.next()){
@@ -1064,6 +1106,7 @@ public static String userId = "";
         
         st.close();
         conn.close();
+        c3.addItem("ALL");
        
       }
       catch(Exception e){
@@ -1071,6 +1114,39 @@ public static String userId = "";
       }
      
     }         
+     
+        //select sold products 
+        public void  filComb4(){
+        c4.removeAllItems();
+        
+      try{
+        Connection conn = getConnection();
+        Statement st = conn.createStatement();
+        String sql = "SELECT DISTINCT  sold_by FROM sold_products";
+        ResultSet rs =  st.executeQuery(sql);
+        
+        while(rs.next()){
+           
+            Statement st2 = conn.createStatement();
+            ResultSet rs2 = st2.executeQuery("SELECT * FROM users WHERE id='"+rs.getString("sold_by")+"' ");
+            if(rs2.next()){
+             c4.addItem(rs2.getString(2));
+            } 
+        }
+        
+        st.close();
+        conn.close();
+        c4.addItem("ALL");
+      
+       
+      }
+      catch(Exception e){
+          System.out.print(e.getMessage());
+      }
+     
+    }         
+        
+        
         
         //adding product to cat table
     public void addToCat(){
@@ -1586,6 +1662,81 @@ public void restockProducts(){
     return check;
  }
  
+  // Method to print the JTable
+    private static void printTable(JTable table) {
+        try {
+            // Create a PrinterJob
+            PrinterJob job = PrinterJob.getPrinterJob();
+
+            // Set a printable object to handle the printing
+            job.setPrintable(new Printable() {
+                @Override
+                public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+                    if (pageIndex > 0) {
+                        return Printable.NO_SUCH_PAGE;
+                    }
+
+                    Graphics2D g2d = (Graphics2D) graphics;
+                    g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+
+                    // Print the JTable
+                    table.print(g2d);
+
+                    return Printable.PAGE_EXISTS;
+                }
+            });
+
+            // Show the print dialog to choose printer settings
+            if (job.printDialog()) {
+                job.print();
+            }
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+ // Export the JTable to an Excel file
+    private static void exportTableToExcel(JTable table, String filePath) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Table Data");
+
+        // Create a header row
+        Row headerRow = sheet.createRow(0);
+        for (int col = 0; col < table.getColumnCount(); col++) {
+            Cell cell = headerRow.createCell(col);
+            cell.setCellValue(table.getColumnName(col));
+        }
+
+        // Create data rows
+        for (int row = 0; row < table.getRowCount(); row++) {
+            Row excelRow = sheet.createRow(row + 1); // Add 1 to account for the header row
+
+            for (int col = 0; col < table.getColumnCount(); col++) {
+                Object value = table.getValueAt(row, col);
+                Cell cell = excelRow.createCell(col);
+
+                if (value instanceof String) {
+                    cell.setCellValue((String) value);
+                } else if (value instanceof Number) {
+                    cell.setCellValue(((Number) value).doubleValue());
+                }
+                // You can add more data type handling as needed
+            }
+        }
+
+        // Write the workbook to the specified file
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            workbook.write(fos);
+        }
+
+        
+    }
+
+
+ 
+ 
  public void upDateUser(){
        JDialog.setDefaultLookAndFeelDecorated(true);
        if(editUserName.getText().equalsIgnoreCase("")||editUserRole.getText().equalsIgnoreCase("")){
@@ -1624,6 +1775,22 @@ public void restockProducts(){
  
  }
  
+ //calculate sum of a given column of Jtable
+ 
+private int colSum(JTable table, int n) {
+    int total = 0;
+    for (int i = 0; i < table.getRowCount(); i++) {
+        try {
+            double value = Double.parseDouble(table.getValueAt(i, n).toString());
+            total += (int) value; // Convert the double to an integer if needed
+        } catch (NumberFormatException e) {
+            // Handle invalid number format gracefully
+            e.printStackTrace();
+        }
+    }
+    return total;
+}
+
  
  //sales table report
  public void salesTableReport(){
@@ -1634,23 +1801,72 @@ public void restockProducts(){
         String from = fromdatePicker.getJFormattedTextField().getText();
         String to  = todatePicker.getJFormattedTextField().getText();
         String product = c3.getSelectedItem().toString();
+        String seller = c4.getSelectedItem().toString();
         try{
         Connection conn = getConnection();
         Statement st = conn.createStatement();
         Statement st2 = conn.createStatement();
+        Statement st3 = conn.createStatement();
+       
+        
         String sql = "SELECT * FROM sold_products WHERE date >= '"+from+"' AND date <='"+to+"'";
         if(!dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL")){
         sql = "SELECT * FROM sold_products WHERE date BETWEEN '"+from+"' AND '"+to+"' ";
         }
         
-        if(!dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL")){
+        //all products sold by specific user between dates
+        if(!dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL") && !seller.equalsIgnoreCase("ALL"))
+        {
+         
+         ResultSet rs3 = st3.executeQuery("SELECT * FROM users WHERE username='"+seller+"' ");
+         if(rs3.next()){
+         sql = "SELECT * FROM sold_products WHERE sold_by ='"+rs3.getString(1)+"' AND date BETWEEN '"+from+"' AND '"+to+"' ";
+         }
+        }
+        
+        //specific products sold by specific user between dates
+         if(!dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL") && !seller.equalsIgnoreCase("ALL"))
+        {
+         
+         ResultSet rs3 = st3.executeQuery("SELECT * FROM users WHERE username='"+seller+"' ");
+         if(rs3.next()){
+         sql = "SELECT * FROM sold_products WHERE name='"+product+"' AND sold_by ='"+rs3.getString(1)+"' AND date BETWEEN '"+from+"' AND '"+to+"' ";
+         }
+        }
+         
+       
+        
+        if(!dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL") && seller.equalsIgnoreCase("ALL")){
         sql = "SELECT * FROM sold_products WHERE name ='"+product+"' AND date BETWEEN '"+from+"' AND '"+to+"' ";
         }
         
-        if(dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL")){
+         //all
+         //all products sold by specific user:no time
+        if((dateCheckBox.isSelected()) && (product.equalsIgnoreCase("ALL")) && (!seller.equalsIgnoreCase("ALL")))
+        {
+         
+         ResultSet rs3 = st3.executeQuery("SELECT * FROM users WHERE username='"+seller+"' ");
+         if(rs3.next()){
+         sql = "SELECT * FROM sold_products WHERE sold_by='"+rs3.getString(1)+"' ";
+         }
+        }
+        
+        //specific products sold by specific user:no time
+         if((dateCheckBox.isSelected()) && (!product.equalsIgnoreCase("ALL")) && (!seller.equalsIgnoreCase("ALL")))
+        {
+         
+         ResultSet rs3 = st3.executeQuery("SELECT * FROM users WHERE username='"+seller+"' ");
+         if(rs3.next()){
+         sql = "SELECT * FROM sold_products WHERE name='"+product+"' AND sold_by='"+rs3.getString(1)+"'  ";
+         }
+        }
+         
+        
+        if(dateCheckBox.isSelected() && product.equalsIgnoreCase("ALL") && seller.equalsIgnoreCase("ALL")){
          sql = "SELECT * FROM sold_products ";//show all sales for all products
         }
-        if(dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL")){
+        
+        if(dateCheckBox.isSelected() && !product.equalsIgnoreCase("ALL") && seller.equalsIgnoreCase("ALL")){
          sql = "SELECT * FROM sold_products WHERE name = '"+product+"' ";//show all sales for a specific product
         }
         
@@ -1673,8 +1889,10 @@ public void restockProducts(){
               }
                date = rs.getString(7);
                String[] row = {id,name,unit,quantity,total_ksh,sold_by,date};
-               model.addRow(row);     
+               model.addRow(row);  
+              
         }
+         model.addRow(new Object[]{"", "", "","Sum Total", colSum(salesTable,4), "",""});
          st.close();
          conn.close();
         
@@ -1909,7 +2127,7 @@ public void restockProducts(){
     public static void main(String[] args) {
       
        if(isAuthenticated){
-         
+     
         new addB1();
        
        }
